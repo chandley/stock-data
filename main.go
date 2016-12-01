@@ -6,6 +6,7 @@ import (
 	"os"
 	"io/ioutil"
 	"time"
+	"encoding/json"
 )
 
 type TimeSeries struct {
@@ -37,6 +38,16 @@ type TimeSeries struct {
 		} `json:"dataset"`
 }
 
+func getJson(url string, target interface{}) error {
+	r, err := http.Get(url)
+	if err != nil {
+		return err
+	}
+	defer r.Body.Close()
+
+	return json.NewDecoder(r.Body).Decode(target)
+}
+
 func handler(w http.ResponseWriter, r *http.Request) {
 	os.Setenv("FORD_PRICE", "14")
 	var fordPrice string = os.Getenv("FORD_PRICE")
@@ -58,9 +69,20 @@ func rawHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, string(htmlData))
 }
 
+func jsonHandler(w http.ResponseWriter, r *http.Request) {
+	var justDateAndClose = "column_index=4&"
+	var apiFilter string = justDateAndClose + "start_date=2016-11-20&"
+	var apiKey string = os.Getenv("QUANDL_API_KEY")
+	var url string = "https://www.quandl.com/api/v3/datasets/WIKI/F.json?" + apiFilter + "api_key=" + apiKey
+	fordSeries := new(TimeSeries)
+	getJson(url, fordSeries)
+	fmt.Fprintf(w, fordSeries.Dataset.Name)
+}
+
 func main() {
 	http.HandleFunc("/", handler)
 	http.HandleFunc("/key", keyHandler)
 	http.HandleFunc("/raw", rawHandler)
+	http.HandleFunc("/json", jsonHandler)
 	http.ListenAndServe(":8080",nil)
 }
