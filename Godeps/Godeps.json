@@ -1,0 +1,47 @@
+{
+	"ImportPath": "github.com/stock-data",
+	"GoVersion": "go1.6",
+	"GodepVersion": "v75",
+	"Deps": [
+		{
+			"ImportPath": "github.com/blendlabs/go-exception",
+			"Rev": "a2d44f35a0a226b5fe120e99ccd70ef1eca8fd36"
+		},
+		{
+			"ImportPath": "github.com/golang/freetype/raster",
+			"Comment": "release-131-g38b4c39",
+			"Rev": "38b4c392adc5eed94207994c4848fff99f4ac234"
+		},
+		{
+			"ImportPath": "github.com/golang/freetype/truetype",
+			"Comment": "release-131-g38b4c39",
+			"Rev": "38b4c392adc5eed94207994c4848fff99f4ac234"
+		},
+		{
+			"ImportPath": "github.com/wcharczuk/go-chart",
+			"Comment": "v2.0",
+			"Rev": "fc2973067ce43455507ea5f9aa9814aabbf8f2ca"
+		},
+		{
+			"ImportPath": "github.com/wcharczuk/go-chart/drawing",
+			"Comment": "v2.0",
+			"Rev": "fc2973067ce43455507ea5f9aa9814aabbf8f2ca"
+		},
+		{
+			"ImportPath": "golang.org/x/image/draw",
+			"Rev": "5286ed5c2aec7fc7d08323e7e4423b171caf84cb"
+		},
+		{
+			"ImportPath": "golang.org/x/image/font",
+			"Rev": "5286ed5c2aec7fc7d08323e7e4423b171caf84cb"
+		},
+		{
+			"ImportPath": "golang.org/x/image/math/f64",
+			"Rev": "5286ed5c2aec7fc7d08323e7e4423b171caf84cb"
+		},
+		{
+			"ImportPath": "golang.org/x/image/math/fixed",
+			"Rev": "5286ed5c2aec7fc7d08323e7e4423b171caf84cb"
+		}
+	]
+}

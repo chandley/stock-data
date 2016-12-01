@@ -36,7 +36,11 @@ type PriceDayData struct{
 
 func main() {
 	http.HandleFunc("/", handler)
-	http.ListenAndServe(":8080",nil)
+	port := os.Getenv("PORT")
+	if len(port) == 0 {
+		port = "8080"
+	}
+	http.ListenAndServe(":" + port,nil)
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
