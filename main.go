@@ -5,7 +5,37 @@ import (
 	"fmt"
 	"os"
 	"io/ioutil"
+	"time"
 )
+
+type TimeSeries struct {
+	Dataset struct {
+			ID int `json:"id"`
+			DatasetCode string `json:"dataset_code"`
+			DatabaseCode string `json:"database_code"`
+			Name string `json:"name"`
+			Description string `json:"description"`
+			RefreshedAt time.Time `json:"refreshed_at"`
+			NewestAvailableDate string `json:"newest_available_date"`
+			OldestAvailableDate string `json:"oldest_available_date"`
+			ColumnNames []string `json:"column_names"`
+			Frequency string `json:"frequency"`
+			Type string `json:"type"`
+			Premium bool `json:"premium"`
+			Limit interface{} `json:"limit"`
+			Transform interface{} `json:"transform"`
+			ColumnIndex int `json:"column_index"`
+			StartDate string `json:"start_date"`
+			EndDate string `json:"end_date"`
+			Data []struct {
+				dateString string `json:"0"`
+				closePrice float64 `json:"1"`
+			} `json:"data"`
+			Collapse interface{} `json:"collapse"`
+			Order interface{} `json:"order"`
+			DatabaseID int `json:"database_id"`
+		} `json:"dataset"`
+}
 
 func handler(w http.ResponseWriter, r *http.Request) {
 	os.Setenv("FORD_PRICE", "14")
@@ -19,13 +49,13 @@ func keyHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func rawHandler(w http.ResponseWriter, r *http.Request) {
+	var justDateAndClose = "column_index=4&"
+	var apiFilter string = justDateAndClose + "start_date=2016-11-20&"
 	var apiKey string = os.Getenv("QUANDL_API_KEY")
-	resp, _ := http.Get("https://www.quandl.com/api/v3/datasets/WIKI/F.json?api_key=" + apiKey)
+	resp, _ := http.Get("https://www.quandl.com/api/v3/datasets/WIKI/F.json?" + apiFilter + "api_key=" + apiKey)
 	defer resp.Body.Close()
 	htmlData, _ := ioutil.ReadAll(resp.Body)
-
 	fmt.Fprintf(w, string(htmlData))
-
 }
 
 func main() {
