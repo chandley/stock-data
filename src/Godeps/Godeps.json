@@ -1,0 +1,14 @@
+{
+	"ImportPath": "github.com/stock-data/src",
+	"GoVersion": "go1.6",
+	"GodepVersion": "v75",
+	"Packages": [
+		"./.."
+	],
+	"Deps": [
+		{
+			"ImportPath": "github.com/stock-data",
+			"Rev": "f8b81a35aca8300c1b90fb46e58b7733f764ae2d"
+		}
+	]
+}
