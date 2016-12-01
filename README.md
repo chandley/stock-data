@@ -1,5 +1,8 @@
-shows data for publicly traded us stocks
+Shows simple price data for US stocks traded on the main exchange
 
-needs a valid quandl api key set as environment variable - you can get one from https://www.quandl.com/
+It's running on heroku at https://go-stock-data.herokuapp.com/F
+use the endpoint with the ticker for the stock you want to see (eg FB, MSFT)
+
+when running locally it needs a valid quandl api key set as environment variable - you can get one from https://www.quandl.com/
 
 set to QUANDL_API_KEY
