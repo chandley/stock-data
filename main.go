@@ -3,10 +3,13 @@ package main
 import (
 	"net/http"
 	"fmt"
+	"os"
 )
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Stock price of Ford motor is 10")
+	os.Setenv("FORD_PRICE", "14")
+	var fordPrice string = os.Getenv("FORD_PRICE")
+	fmt.Fprintf(w, "stock price of Ford motor is " + fordPrice)
 }
 
 func main() {
