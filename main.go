@@ -40,7 +40,8 @@ func main() {
 }
 
 func jsonHandler(w http.ResponseWriter, r *http.Request) {
-	var url string = generateUrl("FB")
+	ticker := r.URL.Path[1:]
+	var url string = generateUrl(ticker)
 	fetchedTimeSeries := new(TimeSeries)
 	getJson(url, fetchedTimeSeries)
 
