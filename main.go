@@ -71,6 +71,16 @@ func generateUrl(ticker string) string {
 	return "https://www.quandl.com/api/v3/datasets/WIKI/" + ticker +".json?" + apiFilter + "api_key=" + apiKey
 }
 
+func getXYvals(ts *TimeSeries)  (xValues []time.Time, yValues []float64,) {
+	for _, dayData := range ts.Dataset.PriceSeries {
+		xDate, _ := time.Parse("2006-01-02", dayData.Date)
+		fmt.Println(time.Parse("2006-01-02", dayData.Date))
+		xValues = append(xValues, xDate)
+		yValues = append(yValues, dayData.ClosingPrice)
+	}
+	return
+}
+
 func jsonHandler(w http.ResponseWriter, r *http.Request) {
 	var url string = generateUrl("F")
 	fordSeries := new(TimeSeries)
@@ -78,14 +88,28 @@ func jsonHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "<p>")
 	fmt.Fprintf(w, fordSeries.Dataset.Name)
 	fmt.Fprintf(w, "\n")
+	xFord, yFord := getXYvals(fordSeries)
+	fmt.Fprintf(w, "\n")
+	fmt.Println(yFord)
 	lastDay := fordSeries.Dataset.PriceSeries[0]
 	fmt.Fprintf(w, "Close price on %v was %.2f </p>", lastDay.Date, lastDay.ClosingPrice)
 	fmt.Fprintf(w, "<body>")
+
 	graph := chart.Chart{
+		XAxis: chart.XAxis{
+			Style: chart.Style{
+				Show: true,
+			},
+		},
+		YAxis: chart.YAxis{
+			Style: chart.Style{
+				Show: true,
+			},
+		},
 		Series: []chart.Series{
-			chart.ContinuousSeries{
-				XValues: []float64{1.0, 2.0, 3.0, 4.0},
-				YValues: []float64{1.0, 2.0, 3.0, 4.0},
+			chart.TimeSeries{
+				XValues: xFord,
+				YValues: yFord,
 			},
 		},
 	}
