@@ -48,7 +48,6 @@ func jsonHandler(w http.ResponseWriter, r *http.Request) {
 
 	lastDay := fetchedTimeSeries.Dataset.PriceSeries[0]
 	fmt.Fprintf(w, "<p>Close price on %v was <b>%.2f</b></p>", lastDay.Date, lastDay.ClosingPrice)
-
 	fmt.Fprintf(w, "<h3>%v price graph</h3>", fetchedTimeSeries.Dataset.ColumnNames[1])
 
 	fmt.Fprintf(w, "<body>")
@@ -100,11 +99,15 @@ func generateChart(ts *TimeSeries) *bytes.Buffer {
 			Style: chart.Style{
 				Show: true,
 			},
+			Name:      "Date",
+			NameStyle: chart.StyleShow(),
 		},
 		YAxis: chart.YAxis{
 			Style: chart.Style{
 				Show: true,
 			},
+			Name:      "Close Price/USD",
+			NameStyle: chart.StyleShow(),
 		},
 		Series: []chart.Series{
 			chart.TimeSeries{
