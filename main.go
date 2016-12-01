@@ -6,6 +6,8 @@ import (
 	"os"
 	"time"
 	"encoding/json"
+	"bytes"
+	"github.com/wcharczuk/go-chart"
 )
 
 type TimeSeries struct {
@@ -62,12 +64,6 @@ func getJson(url string, target interface{}) error {
 	return json.NewDecoder(r.Body).Decode(target)
 }
 
-
-func keyHandler(w http.ResponseWriter, r *http.Request) {
-	var apiKey string = os.Getenv("QUANDL_API_KEY")
-	fmt.Fprintf(w, "api key is " + apiKey)
-}
-
 func generateUrl(ticker string) string {
 	var justDateAndClose = "column_index=4&"
 	var apiFilter string = justDateAndClose + "start_date=2016-11-20&"
@@ -79,13 +75,28 @@ func jsonHandler(w http.ResponseWriter, r *http.Request) {
 	var url string = generateUrl("F")
 	fordSeries := new(TimeSeries)
 	getJson(url, fordSeries)
+	fmt.Fprintf(w, "<p>")
 	fmt.Fprintf(w, fordSeries.Dataset.Name)
 	fmt.Fprintf(w, "\n")
-	fmt.Fprintf(w, "Close price was %f", fordSeries.Dataset.PriceSeries[0].ClosingPrice)
+	lastDay := fordSeries.Dataset.PriceSeries[0]
+	fmt.Fprintf(w, "Close price on %v was %.2f </p>", lastDay.Date, lastDay.ClosingPrice)
+	fmt.Fprintf(w, "<body>")
+	graph := chart.Chart{
+		Series: []chart.Series{
+			chart.ContinuousSeries{
+				XValues: []float64{1.0, 2.0, 3.0, 4.0},
+				YValues: []float64{1.0, 2.0, 3.0, 4.0},
+			},
+		},
+	}
+
+	buffer := bytes.NewBuffer([]byte{})
+	_ = graph.Render(chart.SVG, buffer)
+	fmt.Fprint(w, buffer)
+	fmt.Fprintf(w, "</body>")
 }
 
 func main() {
-	http.HandleFunc("/key", keyHandler)
-	http.HandleFunc("/json", jsonHandler)
+	http.HandleFunc("/", jsonHandler)
 	http.ListenAndServe(":8080",nil)
 }
