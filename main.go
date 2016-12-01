@@ -15,31 +15,31 @@ type TimeSeries struct {
 			DatabaseCode string `json:"database_code"`
 			Name string `json:"name"`
 			Description string `json:"description"`
-			RefreshedAt time.Time `json:"refreshed_at"`
+			RefreshedAt         time.Time `json:"refreshed_at"`
 			NewestAvailableDate string `json:"newest_available_date"`
 			OldestAvailableDate string `json:"oldest_available_date"`
-			ColumnNames []string `json:"column_names"`
-			Frequency string `json:"frequency"`
-			Type string `json:"type"`
-			Premium bool `json:"premium"`
-			Limit interface{} `json:"limit"`
-			Transform interface{} `json:"transform"`
-			ColumnIndex int `json:"column_index"`
-			StartDate string `json:"start_date"`
-			EndDate string `json:"end_date"`
-			Data []PriceData `json:"data"`
-			Collapse interface{} `json:"collapse"`
-			Order interface{} `json:"order"`
-			DatabaseID int `json:"database_id"`
+			ColumnNames         []string `json:"column_names"`
+			Frequency           string `json:"frequency"`
+			Type                string `json:"type"`
+			Premium             bool `json:"premium"`
+			Limit               interface{} `json:"limit"`
+			Transform           interface{} `json:"transform"`
+			ColumnIndex         int `json:"column_index"`
+			StartDate           string `json:"start_date"`
+			EndDate             string `json:"end_date"`
+			PriceSeries         []PriceDayData `json:"data"`
+			Collapse            interface{} `json:"collapse"`
+			Order               interface{} `json:"order"`
+			DatabaseID          int `json:"database_id"`
 		} `json:"dataset"`
 }
 
-type PriceData struct{
+type PriceDayData struct{
 	Date string
 	ClosingPrice float64
 }
 
-func (n *PriceData) UnmarshalJSON(buf []byte) error {
+func (n *PriceDayData) UnmarshalJSON(buf []byte) error {
 	tmp := []interface{}{&n.Date, &n.ClosingPrice}
 	wantLen := len(tmp)
 	if err := json.Unmarshal(buf, &tmp); err != nil {
@@ -80,6 +80,8 @@ func jsonHandler(w http.ResponseWriter, r *http.Request) {
 	fordSeries := new(TimeSeries)
 	getJson(url, fordSeries)
 	fmt.Fprintf(w, fordSeries.Dataset.Name)
+	fmt.Fprintf(w, "\n")
+	fmt.Fprintf(w, "Close price was %f", fordSeries.Dataset.PriceSeries[0].ClosingPrice)
 }
 
 func main() {
