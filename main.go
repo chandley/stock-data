@@ -27,15 +27,30 @@ type TimeSeries struct {
 			ColumnIndex int `json:"column_index"`
 			StartDate string `json:"start_date"`
 			EndDate string `json:"end_date"`
-			Data []struct {
-				dateString string `json:"0"`
-				closePrice float64 `json:"1"`
-			} `json:"data"`
+			Data []PriceData `json:"data"`
 			Collapse interface{} `json:"collapse"`
 			Order interface{} `json:"order"`
 			DatabaseID int `json:"database_id"`
 		} `json:"dataset"`
 }
+
+type PriceData struct{
+	Date string
+	ClosingPrice float64
+}
+
+func (n *PriceData) UnmarshalJSON(buf []byte) error {
+	tmp := []interface{}{&n.Date, &n.ClosingPrice}
+	wantLen := len(tmp)
+	if err := json.Unmarshal(buf, &tmp); err != nil {
+		return err
+	}
+	if g, e := len(tmp), wantLen; g != e {
+		return fmt.Errorf("wrong number of fields in Notification: %d != %d", g, e)
+	}
+	return nil
+}
+
 
 func getJson(url string, target interface{}) error {
 	r, err := http.Get(url)
