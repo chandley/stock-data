@@ -60,7 +60,7 @@ func getData(ticker string) (error, *TimeSeries) {
 
 func showErrorPage(w http.ResponseWriter, ticker string) {
 	fmt.Fprintf(w, "<h1>Could not get data for %v</h1>", ticker)
-	fmt.Fprintf(w, "<h3>Please try again</h3>")
+	fmt.Fprintf(w, "<h3>Please try again!</h3>")
 }
 
 func showSuccessPage(w http.ResponseWriter, fetchedTimeSeries *TimeSeries) {
