@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"fmt"
 	"os"
-	"io/ioutil"
 	"time"
 	"encoding/json"
 )
@@ -48,41 +47,28 @@ func getJson(url string, target interface{}) error {
 	return json.NewDecoder(r.Body).Decode(target)
 }
 
-func handler(w http.ResponseWriter, r *http.Request) {
-	os.Setenv("FORD_PRICE", "14")
-	var fordPrice string = os.Getenv("FORD_PRICE")
-	fmt.Fprintf(w, "stock price of Ford motor is " + fordPrice)
-}
 
 func keyHandler(w http.ResponseWriter, r *http.Request) {
 	var apiKey string = os.Getenv("QUANDL_API_KEY")
 	fmt.Fprintf(w, "api key is " + apiKey)
 }
 
-func rawHandler(w http.ResponseWriter, r *http.Request) {
+func generateUrl(ticker string) string {
 	var justDateAndClose = "column_index=4&"
 	var apiFilter string = justDateAndClose + "start_date=2016-11-20&"
 	var apiKey string = os.Getenv("QUANDL_API_KEY")
-	resp, _ := http.Get("https://www.quandl.com/api/v3/datasets/WIKI/F.json?" + apiFilter + "api_key=" + apiKey)
-	defer resp.Body.Close()
-	htmlData, _ := ioutil.ReadAll(resp.Body)
-	fmt.Fprintf(w, string(htmlData))
+	return "https://www.quandl.com/api/v3/datasets/WIKI/" + ticker +".json?" + apiFilter + "api_key=" + apiKey
 }
 
 func jsonHandler(w http.ResponseWriter, r *http.Request) {
-	var justDateAndClose = "column_index=4&"
-	var apiFilter string = justDateAndClose + "start_date=2016-11-20&"
-	var apiKey string = os.Getenv("QUANDL_API_KEY")
-	var url string = "https://www.quandl.com/api/v3/datasets/WIKI/F.json?" + apiFilter + "api_key=" + apiKey
+	var url string = generateUrl("F")
 	fordSeries := new(TimeSeries)
 	getJson(url, fordSeries)
 	fmt.Fprintf(w, fordSeries.Dataset.Name)
 }
 
 func main() {
-	http.HandleFunc("/", handler)
 	http.HandleFunc("/key", keyHandler)
-	http.HandleFunc("/raw", rawHandler)
 	http.HandleFunc("/json", jsonHandler)
 	http.ListenAndServe(":8080",nil)
 }
