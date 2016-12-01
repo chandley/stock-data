@@ -35,16 +35,35 @@ type PriceDayData struct{
 }
 
 func main() {
-	http.HandleFunc("/", jsonHandler)
+	http.HandleFunc("/", handler)
 	http.ListenAndServe(":8080",nil)
 }
 
-func jsonHandler(w http.ResponseWriter, r *http.Request) {
+func handler(w http.ResponseWriter, r *http.Request) {
 	ticker := r.URL.Path[1:]
-	var url string = generateUrl(ticker)
-	fetchedTimeSeries := new(TimeSeries)
-	getJson(url, fetchedTimeSeries)
+	err, fetchedTimeSeries := getData(ticker)
 
+	if err != nil || fetchedTimeSeries.Dataset.Name == "" {
+		showErrorPage(w, ticker)
+		return
+	}
+
+	showSuccessPage(w, fetchedTimeSeries)
+}
+
+func getData(ticker string) (error, *TimeSeries) {
+	var url string = generateUrl(ticker)
+	ts := new(TimeSeries)
+	err := getJson(url, ts)
+	return err, ts
+}
+
+func showErrorPage(w http.ResponseWriter, ticker string) {
+	fmt.Fprintf(w, "<h1>Could not get data for %v</h1>", ticker)
+	fmt.Fprintf(w, "<h3>Please try again</h3>")
+}
+
+func showSuccessPage(w http.ResponseWriter, fetchedTimeSeries *TimeSeries) {
 	fmt.Fprintf(w, "<h1>%v</h1>", fetchedTimeSeries.Dataset.Name)
 
 	lastDay := fetchedTimeSeries.Dataset.PriceSeries[0]
