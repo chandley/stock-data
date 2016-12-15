@@ -10,8 +10,8 @@ import (
 )
 
 func main() {
-	http.HandleFunc("/stock", handler)
-	http.HandleFunc("/fundamentals", fundamentalsHandler)
+	http.HandleFunc("/stock/", handler)
+	http.HandleFunc("/fundamentals/", fundamentalsHandler)
 	port := os.Getenv("PORT")
 	if len(port) == 0 {
 		port = "8080"
@@ -20,21 +20,24 @@ func main() {
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	ticker := r.URL.Path[1:]
+	ticker := r.URL.Path[len("/stock/"):]
 	err, closePriceTimeSeries := getData.PriceSeries(ticker)
 
 	if err != nil {
 		showErrorPage(w, ticker, err)
 		return
 	}
-	showSuccessPage(w, closePriceTimeSeries)
+	showPricePage(w, closePriceTimeSeries)
 }
 
 func fundamentalsHandler(w http.ResponseWriter, r *http.Request) {
-	_, data := getFundamentals.LatestFundamentals()
+	ticker := r.URL.Path[len("/fundamentals/"):]
+	fmt.Println(ticker)
+	_, data := getFundamentals.LatestFundamentals(ticker)
 	fmt.Fprintf(w, "<p>Company %v</p>", data["companyname"])
-	fmt.Fprintf(w, "<p>Id %v</p>", data["cik"])
-	fmt.Fprintf(w, "<p>Primary exchange %v</p>", data["primaryexchange"])
+	fmt.Fprintf(w, "<p>Total assets %v</p>", data["totalassets"])
+	fmt.Fprintf(w, "<p>Total revenue %v</p>", data["totalrevenue"])
+	fmt.Fprintf(w, "<p>Net income %v</p>", data["netincome"])
 }
 
 func showErrorPage(w http.ResponseWriter, ticker string, err error) {
@@ -44,7 +47,7 @@ func showErrorPage(w http.ResponseWriter, ticker string, err error) {
 
 }
 
-func showSuccessPage(w http.ResponseWriter, ts *getData.TimeSeries) {
+func showPricePage(w http.ResponseWriter, ts *getData.TimeSeries) {
 	fmt.Fprintf(w, "<h1>%v</h1>", ts.StockName)
 	fmt.Fprintf(w, "<p>Close price on %v was <b>%.2f</b></p>", ts.LastDate, ts.LastClosePrice)
 	fmt.Fprintf(w, "<h3>%v price graph</h3>", ts.DataName)
