@@ -32,7 +32,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 func fundamentalsHandler(w http.ResponseWriter, r *http.Request) {
 	_, data := getFundamentals.QuarterlyData()
-	fmt.Fprintf(w, "<p>Got data %v</p>", data)
+	fmt.Fprintf(w, "<p>Got data %v</p>", data.Result.Rows[0].Values[1].Value)
 }
 
 func showErrorPage(w http.ResponseWriter, ticker string, err error) {
