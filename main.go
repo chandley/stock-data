@@ -6,10 +6,12 @@ import (
 	"os"
 	"github.com/stock-data/priceChart"
 	"github.com/stock-data/getData"
+	"github.com/stock-data/getFundamentals"
 )
 
 func main() {
-	http.HandleFunc("/", handler)
+	http.HandleFunc("/stock", handler)
+	http.HandleFunc("/fundamentals", fundamentalsHandler)
 	port := os.Getenv("PORT")
 	if len(port) == 0 {
 		port = "8080"
@@ -26,6 +28,11 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	showSuccessPage(w, closePriceTimeSeries)
+}
+
+func fundamentalsHandler(w http.ResponseWriter, r *http.Request) {
+	_, data := getFundamentals.QuarterlyData()
+	fmt.Fprintf(w, "<p>Got data %v</p>", data)
 }
 
 func showErrorPage(w http.ResponseWriter, ticker string, err error) {
