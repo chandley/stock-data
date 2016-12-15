@@ -10,8 +10,9 @@ import (
 )
 
 func main() {
-	http.HandleFunc("/stock/", handler)
+	http.HandleFunc("/stock/", priceHandler)
 	http.HandleFunc("/fundamentals/", fundamentalsHandler)
+	http.HandleFunc("/composite/", compositeHandler)
 	port := os.Getenv("PORT")
 	if len(port) == 0 {
 		port = "8080"
@@ -19,7 +20,19 @@ func main() {
 	http.ListenAndServe(":" + port,nil)
 }
 
-func handler(w http.ResponseWriter, r *http.Request) {
+func compositeHandler(w http.ResponseWriter, r *http.Request) {
+	ticker := r.URL.Path[len("/composite/"):]
+	err, closePriceTimeSeries := getData.PriceSeries(ticker)
+	err, data := getFundamentals.LatestFundamentals(ticker)
+
+	if err != nil {
+		showErrorPage(w, ticker, err)
+		return
+	}
+	showCompositePage(w, closePriceTimeSeries, data)
+}
+
+func priceHandler(w http.ResponseWriter, r *http.Request) {
 	ticker := r.URL.Path[len("/stock/"):]
 	err, closePriceTimeSeries := getData.PriceSeries(ticker)
 
@@ -49,6 +62,18 @@ func showErrorPage(w http.ResponseWriter, ticker string, err error) {
 
 func showPricePage(w http.ResponseWriter, ts *getData.TimeSeries) {
 	fmt.Fprintf(w, "<h1>%v</h1>", ts.StockName)
+	fmt.Fprintf(w, "<p>Close price on %v was <b>%.2f</b></p>", ts.LastDate, ts.LastClosePrice)
+	fmt.Fprintf(w, "<h3>%v price graph</h3>", ts.DataName)
+	fmt.Fprintf(w, "<body>")
+	fmt.Fprint(w, priceChart.GenerateChart(ts.Dates, ts.ClosePrices))
+	fmt.Fprintf(w, "</body>")
+}
+
+func showCompositePage(w http.ResponseWriter, ts *getData.TimeSeries, data map[string]string) {
+	fmt.Fprintf(w, "<p>Company %v</p>", data["companyname"])
+	fmt.Fprintf(w, "<p>Total assets %v</p>", data["totalassets"])
+	fmt.Fprintf(w, "<p>Total revenue %v</p>", data["totalrevenue"])
+	fmt.Fprintf(w, "<p>Net income %v</p>", data["netincome"])
 	fmt.Fprintf(w, "<p>Close price on %v was <b>%.2f</b></p>", ts.LastDate, ts.LastClosePrice)
 	fmt.Fprintf(w, "<h3>%v price graph</h3>", ts.DataName)
 	fmt.Fprintf(w, "<body>")
