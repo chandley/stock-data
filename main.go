@@ -31,8 +31,10 @@ func handler(w http.ResponseWriter, r *http.Request) {
 }
 
 func fundamentalsHandler(w http.ResponseWriter, r *http.Request) {
-	_, data := getFundamentals.QuarterlyData()
-	fmt.Fprintf(w, "<p>Got data %v</p>", data.Result.Rows[0].Values[1].Value)
+	_, data := getFundamentals.LatestFundamentals()
+	fmt.Fprintf(w, "<p>Company %v</p>", data["companyname"])
+	fmt.Fprintf(w, "<p>Id %v</p>", data["cik"])
+	fmt.Fprintf(w, "<p>Primary exchange %v</p>", data["primaryexchange"])
 }
 
 func showErrorPage(w http.ResponseWriter, ticker string, err error) {

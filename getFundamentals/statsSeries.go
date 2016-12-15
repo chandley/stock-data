@@ -8,6 +8,7 @@ import (
 
 	"fmt"
 	"os"
+
 )
 
 type EdgarQuarterlyData struct {
@@ -36,6 +37,17 @@ func QuarterlyData() (err error, eqd *EdgarQuarterlyData) {
 	return
 }
 
+func LatestFundamentals() (err error, data map[string]string) {
+	url := generateUrl()
+	if err != nil {
+		return
+	}
+	eqd := new(EdgarQuarterlyData)
+	err = getJson(url, &eqd)
+	data = latestFundamentals(eqd)
+	return
+}
+
 func generateUrl() (url string) {
 	var apiKey string = os.Getenv("EDGAR_API_KEY")
 	url = "http://edgaronline.api.mashery.com/v2/corefinancials/qtr.json?deleted=false&primarysymbols=msft&debug=false&sortby=primarysymbol+asc&appkey=" + apiKey
@@ -49,6 +61,18 @@ func getJson(url string, target interface{}) error {
 	}
 	defer r.Body.Close()
 	return json.NewDecoder(r.Body).Decode(target)
+}
+
+func latestFundamentals(eqd *EdgarQuarterlyData) map[string]string {
+	fudamentals := make(map[string]string)
+
+	latestDataSlice := eqd.Result.Rows[0].Values
+
+	for _, pair := range latestDataSlice {
+		fudamentals[pair.Field] = pair.Value
+	}
+
+	return fudamentals
 }
 
 
