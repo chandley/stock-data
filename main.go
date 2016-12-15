@@ -6,8 +6,7 @@ import (
 	"os"
 	"time"
 	"encoding/json"
-	"bytes"
-	"github.com/wcharczuk/go-chart"
+	"github.com/stock-data/priceChart"
 )
 
 type TimeSeries struct {
@@ -75,7 +74,8 @@ func showSuccessPage(w http.ResponseWriter, fetchedTimeSeries *TimeSeries) {
 	fmt.Fprintf(w, "<h3>%v price graph</h3>", fetchedTimeSeries.Dataset.ColumnNames[1])
 
 	fmt.Fprintf(w, "<body>")
-	fmt.Fprint(w, generateChart(fetchedTimeSeries))
+	xSeries, ySeries := getXYvals(fetchedTimeSeries)
+	fmt.Fprint(w, priceChart.GenerateChart(xSeries, ySeries))
 	fmt.Fprintf(w, "</body>")
 }
 
@@ -116,33 +116,5 @@ func getXYvals(ts *TimeSeries)  (xValues []time.Time, yValues []float64,) {
 	return
 }
 
-func generateChart(ts *TimeSeries) *bytes.Buffer {
-	xSeries, ySeries := getXYvals(ts)
-	graph := chart.Chart{
-		XAxis: chart.XAxis{
-			Style: chart.Style{
-				Show: true,
-			},
-			Name:      "Date",
-			NameStyle: chart.StyleShow(),
-		},
-		YAxis: chart.YAxis{
-			Style: chart.Style{
-				Show: true,
-			},
-			Name:      "Close Price/USD",
-			NameStyle: chart.StyleShow(),
-		},
-		Series: []chart.Series{
-			chart.TimeSeries{
-				XValues: xSeries,
-				YValues: ySeries,
-			},
-		},
-	}
 
-	buffer := bytes.NewBuffer([]byte{})
-	_ = graph.Render(chart.SVG, buffer)
-	return buffer
-}
 
