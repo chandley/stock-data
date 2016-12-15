@@ -7,6 +7,7 @@ import (
 	"time"
 	"encoding/json"
 	"github.com/stock-data/priceChart"
+	"errors"
 )
 
 type TimeSeries struct {
@@ -33,6 +34,15 @@ type PriceDayData struct{
 	ClosingPrice float64
 }
 
+type successDataModel struct {
+	name string
+	lastDate string
+	lastClosePrice float64
+	yValsName string
+	xVals []time.Time
+	yVals []float64
+}
+
 func main() {
 	http.HandleFunc("/", handler)
 	port := os.Getenv("PORT")
@@ -44,21 +54,26 @@ func main() {
 
 func handler(w http.ResponseWriter, r *http.Request) {
 	ticker := r.URL.Path[1:]
-	err, fetchedTimeSeries := getData(ticker)
+	err, data := getData(ticker)
 
-	if err != nil || fetchedTimeSeries.Dataset.Name == "" {
+	if err != nil {
 		showErrorPage(w, ticker)
 		return
 	}
-
-	showSuccessPage(w, fetchedTimeSeries)
+	showSuccessPage(w, data)
 }
 
-func getData(ticker string) (error, *TimeSeries) {
+func getData(ticker string) (error, *successDataModel) {
 	var url string = generateUrl(ticker)
 	ts := new(TimeSeries)
 	err := getJson(url, ts)
-	return err, ts
+	if err == nil && ts.Dataset.Name == "" {
+		err = errors.New("didn't get data for ticker")
+		data := successDataModel{}
+		return err, &data
+	}
+	data := generateSuccessDataModel(ts)
+	return err, &data
 }
 
 func showErrorPage(w http.ResponseWriter, ticker string) {
@@ -66,16 +81,23 @@ func showErrorPage(w http.ResponseWriter, ticker string) {
 	fmt.Fprintf(w, "<h3>Please try again</h3>")
 }
 
-func showSuccessPage(w http.ResponseWriter, fetchedTimeSeries *TimeSeries) {
-	fmt.Fprintf(w, "<h1>%v</h1>", fetchedTimeSeries.Dataset.Name)
+func generateSuccessDataModel(ts *TimeSeries) (data successDataModel) {
+	lastDay := ts.Dataset.PriceSeries[0]
 
-	lastDay := fetchedTimeSeries.Dataset.PriceSeries[0]
-	fmt.Fprintf(w, "<p>Close price on %v was <b>%.2f</b></p>", lastDay.Date, lastDay.ClosingPrice)
-	fmt.Fprintf(w, "<h3>%v price graph</h3>", fetchedTimeSeries.Dataset.ColumnNames[1])
+	data.name = ts.Dataset.Name
+	data.lastDate = lastDay.Date
+	data.lastClosePrice = lastDay.ClosingPrice
+	data.yValsName = ts.Dataset.ColumnNames[1]
+	data.xVals, data.yVals = getXYvals(ts)
+	return
+}
 
+func showSuccessPage(w http.ResponseWriter, data *successDataModel) {
+	fmt.Fprintf(w, "<h1>%v</h1>", data.name)
+	fmt.Fprintf(w, "<p>Close price on %v was <b>%.2f</b></p>", data.lastDate, data.lastClosePrice)
+	fmt.Fprintf(w, "<h3>%v price graph</h3>", data.yValsName)
 	fmt.Fprintf(w, "<body>")
-	xSeries, ySeries := getXYvals(fetchedTimeSeries)
-	fmt.Fprint(w, priceChart.GenerateChart(xSeries, ySeries))
+	fmt.Fprint(w, priceChart.GenerateChart(data.xVals, data.yVals))
 	fmt.Fprintf(w, "</body>")
 }
 
