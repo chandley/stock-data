@@ -55,24 +55,30 @@ func (n *QuandlPriceDayData) UnmarshalJSON(buf []byte) error {
 	return nil
 }
 
-func PriceSeries(ticker string) (error, *TimeSeries) {
-	url := generateUrl(ticker)
+func PriceSeries(ticker string) (err error, cleanTs *TimeSeries) {
+	err, url := generateUrl(ticker)
+	if err != nil {
+		return
+	}
 	rawTs := new(QuandlClosePriceTimeSeries)
-	err := getJson(url, rawTs)
+	err = getJson(url, rawTs)
 	if err == nil && rawTs.Dataset.Name == "" {
 		err = errors.New("didn't get data for ticker")
-		cleanTs := TimeSeries{}
-		return err, &cleanTs
+		return
 	}
-	cleanTs := cleanUpTimeSeries(rawTs)
-	return err, &cleanTs
+	cleanTs = cleanUpTimeSeries(rawTs)
+	return
 }
 
-func generateUrl(ticker string) string {
+func generateUrl(ticker string) (err error, url string) {
 	var justDateAndClose = "column_index=4&"
 	var apiFilter string = justDateAndClose
 	var apiKey string = os.Getenv("QUANDL_API_KEY")
-	return "https://www.quandl.com/api/v3/datasets/WIKI/" + ticker +".json?" + apiFilter + "api_key=" + apiKey
+	if apiKey == "" {
+		err = errors.New("Cannot detect api key - please check env var QUANDL_API_KEY")
+	}
+	url = "https://www.quandl.com/api/v3/datasets/WIKI/" + ticker +".json?" + apiFilter + "api_key=" + apiKey
+	return
 }
 
 func getJson(url string, target interface{}) error {
@@ -84,15 +90,17 @@ func getJson(url string, target interface{}) error {
 	return json.NewDecoder(r.Body).Decode(target)
 }
 
-func cleanUpTimeSeries(rawTs *QuandlClosePriceTimeSeries) (processedTs TimeSeries) {
+func cleanUpTimeSeries(rawTs *QuandlClosePriceTimeSeries) *TimeSeries {
 	lastDay := rawTs.Dataset.PriceSeries[0]
+	processedTs := TimeSeries{}
 
 	processedTs.StockName = rawTs.Dataset.Name
 	processedTs.LastDate = lastDay.Date
 	processedTs.LastClosePrice = lastDay.ClosingPrice
 	processedTs.DataName = rawTs.Dataset.ColumnNames[1]
 	processedTs.Dates, processedTs.ClosePrices = getXYvals(rawTs)
-	return
+
+	return &processedTs
 }
 
 func getXYvals(ts *QuandlClosePriceTimeSeries)  (xValues []time.Time, yValues []float64,) {

@@ -2,10 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="62339ff9-852b-4ad8-9f44-793932ed1637" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/getData/priceSeries.go" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/getData/priceData.go" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/main.go" afterPath="$PROJECT_DIR$/main.go" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/getData/priceSeries.go" afterPath="$PROJECT_DIR$/getData/priceSeries.go" />
     </list>
     <ignored path="stock-data.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -51,8 +49,8 @@
       <file leaf-file-name="priceSeries.go" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/getData/priceSeries.go">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="517">
-              <caret line="57" column="33" selection-start-line="57" selection-start-column="33" selection-end-line="57" selection-end-column="33" />
+            <state relative-caret-position="742">
+              <caret line="76" column="20" selection-start-line="76" selection-start-column="20" selection-end-line="76" selection-end-column="20" />
               <folding>
                 <element signature="e#17#99#0" expanded="true" />
               </folding>
@@ -454,12 +452,12 @@
       <updated>1480585746277</updated>
       <workItem from="1480585747652" duration="22844000" />
       <workItem from="1480609207392" duration="1336000" />
-      <workItem from="1481798247176" duration="7549000" />
+      <workItem from="1481798247176" duration="8526000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="31729000" />
+    <option name="totallyTimeSpent" value="32706000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-655" y="-1417" width="1280" height="1417" extended-state="0" />
@@ -675,8 +673,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/getData/priceSeries.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="517">
-          <caret line="57" column="33" selection-start-line="57" selection-start-column="33" selection-end-line="57" selection-end-column="33" />
+        <state relative-caret-position="742">
+          <caret line="76" column="20" selection-start-line="76" selection-start-column="20" selection-end-line="76" selection-end-column="20" />
           <folding>
             <element signature="e#17#99#0" expanded="true" />
           </folding>
